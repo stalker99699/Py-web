@@ -1,0 +1,10 @@
+{
+  "name": "python-streams",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "serve src"
+  },
+  "dependencies": {
+    "serve": "^14.0.1"
+  }
+}
