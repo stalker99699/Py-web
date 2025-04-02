@@ -5,19 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Python Streams</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.10.7/brython.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.10.7/brython_stdlib.min.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        }
-
-        body {
             font-family: Arial, sans-serif;
+        }
+        
+        body {
             background: #1a1a1a;
             color: white;
         }
-
+        
         /* Модальное окно согласия */
         .consent-modal {
             position: fixed;
@@ -25,37 +26,47 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.9);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 1000;
         }
-
+        
         .consent-box {
             background: #333;
             padding: 2rem;
             border-radius: 10px;
+            max-width: 500px;
             text-align: center;
         }
-
+        
+        .consent-btn {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
         /* Боковое меню */
         .sidebar {
             position: fixed;
-            left: -250px;
+            left: -300px;
             top: 0;
-            width: 250px;
+            width: 300px;
             height: 100%;
             background: #222;
             transition: 0.3s;
             padding: 20px;
             overflow-y: auto;
         }
-
+        
         .sidebar.active {
             left: 0;
         }
-
+        
         .menu-btn {
             position: fixed;
             left: 20px;
@@ -63,22 +74,29 @@
             font-size: 24px;
             cursor: pointer;
             z-index: 100;
+            background: #333;
+            padding: 10px;
+            border-radius: 5px;
         }
-
+        
         /* Список игр */
         .game-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            margin-top: 20px;
         }
-
+        
         .game-item {
             background: #444;
-            padding: 1rem;
+            padding: 15px;
+            margin-bottom: 10px;
             border-radius: 5px;
             cursor: pointer;
+            transition: 0.2s;
         }
-
+        
+        .game-item:hover {
+            background: #555;
+        }
+        
         /* Полноэкранный режим */
         .fullscreen {
             position: fixed;
@@ -90,7 +108,20 @@
             z-index: 999;
             display: none;
         }
-
+        
+        .exit-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: #ff3333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        
         /* Футер */
         footer {
             position: fixed;
@@ -100,13 +131,9 @@
             background: #222;
             text-align: center;
         }
-
-        .links {
-            margin-top: 10px;
-        }
-
+        
         .links a {
-            color: white;
+            color: #4dabf7;
             margin: 0 10px;
             text-decoration: none;
         }
@@ -117,44 +144,52 @@
     <div class="consent-modal" id="consentModal">
         <div class="consent-box">
             <h2>Внимание!</h2>
-            <p>Все Python-скрипты выполняются на вашем устройстве.</p>
-            <button onclick="acceptConsent()">Согласиться</button>
-            <button onclick="declineConsent()">Отказаться</button>
+            <p>Все Python-скрипты выполняются непосредственно в вашем браузере. Для работы требуется JavaScript.</p>
+            <p>Нажимая "Согласиться", вы подтверждаете, что понимаете это.</p>
+            <button class="consent-btn" onclick="acceptConsent()" style="background: #4CAF50;">Согласиться</button>
+            <button class="consent-btn" onclick="declineConsent()" style="background: #f44336;">Отказаться</button>
         </div>
     </div>
 
     <!-- Кнопка меню -->
-    <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+    <div class="menu-btn" onclick="toggleSidebar()">☰ Меню</div>
 
     <!-- Боковое меню -->
     <div class="sidebar" id="sidebar">
-        <h2>Доступные игры</h2>
-        <div class="game-list" id="gameList"></div>
+        <h2>Доступные Python-скрипты</h2>
+        <div class="game-list" id="gameList">
+            <!-- Игры будут загружены здесь -->
+        </div>
     </div>
 
-    <!-- Контент -->
-    <div class="content">
-        <div class="fullscreen" id="gameContainer"></div>
-    </div>
+    <!-- Контейнер для игр -->
+    <div class="fullscreen" id="gameContainer"></div>
 
     <!-- Футер -->
     <footer>
-        <h2>Python Streams</h2>
-        <p>Платформа для запуска Python-игр</p>
+        <h3>Python Streams</h3>
+        <p>Запуск Python-кода прямо в вашем браузере</p>
         <div class="links">
-            <a href="https://github.com" target="_blank">GitHub</a>
-            <a href="https://twitch.tv" target="_blank">Twitch</a>
+            <a href="https://github.com/yourusername" target="_blank">GitHub</a>
+            <a href="https://twitter.com/yourusername" target="_blank">Twitter</a>
         </div>
     </footer>
 
     <script>
         // Обработка согласия
         function acceptConsent() {
+            localStorage.setItem('pythonConsent', 'true');
             document.getElementById('consentModal').style.display = 'none';
+            loadGames();
         }
 
         function declineConsent() {
-            window.location.href = 'about:blank';
+            window.location.href = 'https://google.com';
+        }
+
+        // Проверка согласия при загрузке
+        if(localStorage.getItem('pythonConsent') === 'true') {
+            document.getElementById('consentModal').style.display = 'none';
         }
 
         // Меню
@@ -162,53 +197,71 @@
             document.getElementById('sidebar').classList.toggle('active');
         }
 
-        // Список игр (заглушка)
-        const games = [
-            {name: "Игра 1", file: "games/game1.py", preview: "preview1.jpg"},
-            {name: "Игра 2", file: "games/game2.py", preview: "preview2.jpg"}
-        ];
-
-        function loadGames() {
+        // Загрузка списка игр
+        async function loadGames() {
             const container = document.getElementById('gameList');
-            games.forEach(game => {
-                const div = document.createElement('div');
-                div.className = 'game-item';
-                div.innerHTML = `
-                    <h3>${game.name}</h3>
-                    <img src="${game.preview}" style="width:100%; margin-top:10px;">
-                `;
-                div.onclick = () => launchGame(game.file);
-                container.appendChild(div);
-            });
+            
+            try {
+                // Вместо файла list.json просто используем список файлов
+                const games = [
+                    {name: "Демо-игра: Шарики", file: "game1.py"},
+                    {name: "Демо-игра: Квадраты", file: "game2.py"}
+                ];
+
+                games.forEach(game => {
+                    const div = document.createElement('div');
+                    div.className = 'game-item';
+                    div.innerHTML = `<h3>${game.name}</h3>`;
+                    div.onclick = () => launchGame(game.file);
+                    container.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error loading games:', error);
+                container.innerHTML = '<p>Не удалось загрузить список игр</p>';
+            }
         }
 
         // Запуск игры
-        function launchGame(file) {
+        async function launchGame(filename) {
             const container = document.getElementById('gameContainer');
             container.style.display = 'block';
+            container.innerHTML = `
+                <button class="exit-btn" onclick="exitFullscreen()">✕ Закрыть</button>
+                <div id="python-container"></div>
+            `;
             
-            fetch(file)
-                .then(response => response.text())
-                .then(code => {
-                    container.innerHTML = `
-                        <button onclick="exitFullscreen()" style="position:absolute; top:20px; right:20px;">
-                            Закрыть
-                        </button>
-                        <script type="text/python">
-                            ${code}
-                        <\/script>
-                    `;
-                    brython(1);
-                });
+            try {
+                const response = await fetch(`/games/${filename}`);
+                const code = await response.text();
+                
+                const pythonContainer = document.createElement('div');
+                pythonContainer.id = 'python-script';
+                container.appendChild(pythonContainer);
+                
+                pythonContainer.innerHTML = `
+                    <script type="text/python">
+                        ${code}
+                    <\/script>
+                `;
+                
+                brython(1);
+            } catch (error) {
+                console.error('Error loading game:', error);
+                container.innerHTML = `
+                    <button class="exit-btn" onclick="exitFullscreen()">✕ Закрыть</button>
+                    <p style="color: white; padding: 20px;">Ошибка загрузки скрипта: ${error.message}</p>
+                `;
+            }
         }
 
         function exitFullscreen() {
             document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('gameContainer').innerHTML = '';
         }
 
         // Инициализация
-        window.onload = () => {
-            loadGames();
+        if(localStorage.getItem('pythonConsent') === 'true') {
+            window.onload = loadGames;
         }
     </script>
 </body>
