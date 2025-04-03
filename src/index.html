@@ -284,19 +284,10 @@
     <script>
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', async function() {
-            // Загрузка конфигурации
             const config = await loadConfig();
-            
-            // Настройка ссылок
             setupLinks(config);
-            
-            // Настройка обработчиков событий
             setupEventListeners();
-            
-            // Проверка согласия
             checkConsent();
-            
-            // Инициализация Brython
             brython();
         });
 
@@ -324,18 +315,11 @@
 
         // Настройка обработчиков событий
         function setupEventListeners() {
-            // Кнопки согласия
             document.getElementById('acceptBtn').addEventListener('click', acceptConsent);
             document.getElementById('declineBtn').addEventListener('click', declineConsent);
-            
-            // Меню
             document.getElementById('menuBtn').addEventListener('click', toggleSidebar);
-            
-            // Управление игрой
             document.getElementById('exitBtn').addEventListener('click', exitGame);
             document.getElementById('restartBtn').addEventListener('click', restartGame);
-            
-            // Закрытие по ESC
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') exitGame();
             });
@@ -372,11 +356,9 @@
             gameList.innerHTML = '<p>Загрузка...</p>';
             
             try {
-                // В реальном приложении загружаем с сервера
-                const games = [
-                    { name: "Демо: Шарики", file: "game1.py", desc: "Анимация движущихся шариков" },
-                    { name: "Демо: Часы", file: "game2.py", desc: "Аналоговые часы" }
-                ];
+                const response = await fetch('/games/games.json');
+                if (!response.ok) throw new Error('Не удалось загрузить список игр');
+                const games = await response.json();
                 
                 gameList.innerHTML = '';
                 games.forEach(game => {
@@ -390,7 +372,7 @@
                     gameList.appendChild(gameEl);
                 });
             } catch (error) {
-                gameList.innerHTML = '<p style="color: var(--danger);">Ошибка загрузки списка</p>';
+                gameList.innerHTML = '<p style="color: var(--danger);">Ошибка загрузки списка: ' + error.message + '</p>';
             }
         }
 
@@ -409,22 +391,17 @@
                 if (!response.ok) throw new Error('Файл не найден');
                 
                 const code = await response.text();
-                
-                // Очищаем output
                 output.innerHTML = '';
                 
-                // Создаем и добавляем скрипт в body
                 const script = document.createElement('script');
                 script.type = 'text/python';
                 script.textContent = code;
                 document.body.appendChild(script);
                 
-                // Закрываем меню, если открыто
                 if (document.getElementById('sidebar').classList.contains('active')) {
                     toggleSidebar();
                 }
                 
-                // Запускаем Brython
                 brython(1);
             } catch (error) {
                 output.innerHTML = `
@@ -447,8 +424,19 @@
         function restartGame() {
             const name = document.getElementById('gameName').textContent;
             if (name) {
-                const file = name.includes('Шарики') ? 'game1.py' : 'game2.py';
-                launchGame(name, file);
+                const gameItems = document.querySelectorAll('.game-item');
+                for (const item of gameItems) {
+                    const title = item.querySelector('.game-title').textContent;
+                    if (title === name) {
+                        const onclick = item.getAttribute('onclick');
+                        const fileMatch = onclick.match(/'([^']+\.py)'/);
+                        if (fileMatch) {
+                            const file = fileMatch[1];
+                            launchGame(name, file);
+                            break;
+                        }
+                    }
+                }
             }
         }
     </script>
