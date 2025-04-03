@@ -1,10 +1,6 @@
 {
-  "name": "python-streams",
+  "name": "python-web-runner",
   "version": "1.0.0",
-  "scripts": {
-    "dev": "serve src"
-  },
-  "dependencies": {
-    "serve": "^14.0.1"
-  }
+  "scripts": {"dev": "serve src"},
+  "dependencies": {"serve": "^14.0.1"}
 }
