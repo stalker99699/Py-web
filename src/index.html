@@ -409,13 +409,17 @@
                 if (!response.ok) throw new Error('Файл не найден');
                 
                 const code = await response.text();
-                output.innerHTML = `
-                    <script type="text/python">
-                        ${code}
-                    <\/script>
-                `;
                 
-                // Закрываем меню если открыто
+                // Очищаем output
+                output.innerHTML = '';
+                
+                // Создаем и добавляем скрипт в body
+                const script = document.createElement('script');
+                script.type = 'text/python';
+                script.textContent = code;
+                document.body.appendChild(script);
+                
+                // Закрываем меню, если открыто
                 if (document.getElementById('sidebar').classList.contains('active')) {
                     toggleSidebar();
                 }
