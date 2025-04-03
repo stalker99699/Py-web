@@ -1,0 +1,4 @@
+[
+    { "name": "BETA game 1", "file": "game1.py", "desc": "simulation of balls " },
+    { "name": "Афто змейка", "file": "auto-snake.py", "desc": "бот играет в змейку" }
+]
